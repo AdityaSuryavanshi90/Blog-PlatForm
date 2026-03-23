@@ -17,6 +17,7 @@ export const Blog = pgTable("blogs", {
   authorId: uuid("authorId")
     .notNull()
     .references(() => users.id),
+  imageUrl: text("imageUrl"),
   createdAt: text("createdAt").notNull(),
   updatedAt: text("updatedAt").notNull(),
 });

@@ -1,14 +1,33 @@
 "use client";
-import { createBlogs, getBlogById, updateBlogById } from "@/lib/services";
+import {
+  createBlogs,
+  getBlogById,
+  updateBlogById,
+  uploadImage,
+} from "@/lib/services";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+
 export default function CreateBlogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center pt-14">Loading...</div>
+      }
+    >
+      <CreateBlogContent />
+    </Suspense>
+  );
+}
+
+function CreateBlogContent() {
   const [error, setError] = useState<string | any>("");
   const [value, setValue] = useState("");
   const {
@@ -20,9 +39,39 @@ export default function CreateBlogPage() {
 
   const router = useRouter();
 
-  const quillRef = useRef<ReactQuill>(null);
   const searchparams = useSearchParams();
   const blogId = searchparams.get("id");
+
+  const modules = {
+    toolbar: {
+      container: [
+        [{ header: [1, 2, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link", "image"],
+        ["clean"],
+      ],
+    },
+    handlers: {
+      image: imageHandler,
+    },
+  };
+
+  function imageHandler(this: any) {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      const data = await uploadImage(file);
+
+      const quill = this.quill;
+      const range = quill.getSelection();
+      quill.insertEmbed(range.index, "image", data.img);
+    };
+  }
 
   const fetchBlogById = async () => {
     if (blogId) {
@@ -39,8 +88,9 @@ export default function CreateBlogPage() {
 
   const onSubmit = async (data: any) => {
     try {
-      const textLength = quillRef.current?.getEditor().getLength() ?? 0;
-      if (textLength <= 1) {
+      // Check if content is empty (strip HTML tags and check)
+      const strippedContent = value.replace(/<[^>]*>/g, "").trim();
+      if (!strippedContent) {
         return setError({ content: "Content is required" });
       }
       const result = blogId
@@ -86,10 +136,10 @@ export default function CreateBlogPage() {
               className="border border-gray-300 bg-white rounded-md px-3 py-4 text-sm text-gray-900 outline-none focus:border-cyan-500 resize-none"
               {...register("content")}
             /> */}
-            <div className="rounded-md overflow-hidden border border-gray-300 focus-within:border-cyan-500">
+            <div className="rounded-md overflow-hidden border border-gray-300 focus-within:border-cyan-500 [&_.ql-editor_img]:max-w-full [&_.ql-editor_img]:max-h-48 [&_.ql-editor_img]:object-contain [&_.ql-editor_img]:rounded">
               <ReactQuill
-                ref={quillRef}
                 value={value}
+                modules={modules}
                 onChange={setValue}
                 className="h-64"
               />

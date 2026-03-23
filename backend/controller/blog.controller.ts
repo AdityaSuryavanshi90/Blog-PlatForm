@@ -19,6 +19,18 @@ export const getAllBlogs = async (req, res) => {
       .json({ message: "Internal server error", errorMessage: error });
   }
 };
+export const uploadImage = async (req: any, res: any) => {
+  try {
+    const imageUrl = `http://localhost:4000/uploads/${req.file.filename}`;
+    return res
+      .status(200)
+      .json({ img: imageUrl, message: "Image uploaded successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to upload image", errorMessage: error });
+  }
+};
 
 export const getBlogsByUserId = async (req: any, res: any) => {
   try {
@@ -53,7 +65,7 @@ export const createBlog = async (req: any, res: any) => {
         error: result.error.flatten().fieldErrors,
       });
     }
-    const { title, content } = result.data;
+    const { title, content, imageUrl } = result.data;
 
     const newBlog = await db
       .insert(Blog)
@@ -63,6 +75,7 @@ export const createBlog = async (req: any, res: any) => {
         authorId: req.user.userId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        imageUrl,
       })
       .returning();
     return res.status(201).json({
@@ -157,7 +170,11 @@ export const getBlogById = async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
-    const [blog] = await db.select().from(Blog).where(eq(Blog.id, id));
+    const [blog] = await db
+      .select()
+      .from(Blog)
+      .where(eq(Blog.id, id))
+      .leftJoin(users, eq(Blog.authorId, users.id));
 
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });

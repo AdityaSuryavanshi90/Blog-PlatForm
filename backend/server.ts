@@ -6,9 +6,24 @@ import authRouters from "./routes/auth.routes";
 import blogRouter from "./routes/blog.routes";
 
 const app = express();
-app.use(cors({ origin: "http://localhost:3000" }));
+
+// CORS configuration for production
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(express.json());
-const port = 4000;
+
+app.use("/uploads", express.static("uploads"));
+
+const port = process.env.PORT || 4000;
 
 app.use("/auth", authRouters);
 app.use("/", blogRouter);

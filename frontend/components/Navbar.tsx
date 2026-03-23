@@ -1,10 +1,29 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Navbar() {
+  return (
+    <Suspense fallback={<NavbarSkeleton />}>
+      <NavbarContent />
+    </Suspense>
+  );
+}
+
+function NavbarSkeleton() {
+  return (
+    <nav className="w-full fixed top-0 border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-white shadow-sm">
+      <div className="text-xl font-bold text-cyan-600">BlogPlatform</div>
+      <div className="flex items-center gap-3">
+        <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </nav>
+  );
+}
+
+function NavbarContent() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();

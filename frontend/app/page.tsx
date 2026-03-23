@@ -116,7 +116,9 @@ export default function Home() {
         </div>
         <div className="max-w-6xl mx-auto mt-7 px-4 ">
           {loading && blogs.length === 0 && (
-            <div className="animate-bounce text-gray-400 text-center">loading blogs..</div>
+            <div className="animate-bounce text-gray-400 text-center">
+              loading blogs..
+            </div>
           )}
           {category ? (
             <div>
@@ -128,7 +130,7 @@ export default function Home() {
                   </span>
                 </p>
               ) : !loading && currentUserBlogs.length === 0 ? (
-                <p className="text-xl text-gray-700 capitalize">
+                <p className="text-xl text-gray-700 capitalize text-center">
                   No Blogs Has Been Created yet
                   <span className="text-cyan-600 hover:text-blue-500">
                     {" "}
@@ -145,6 +147,7 @@ export default function Home() {
                       id={blog.id}
                       title={blog?.title}
                       content={blog?.content}
+                      imageUrl={blog?.imageUrl}
                       authorName={currentUserData?.name}
                       createdAt={blog?.createdAt}
                       onEdit={onEdit}
@@ -169,6 +172,7 @@ export default function Home() {
                       id={blog?.blogs?.id}
                       key={blog?.blogs?.id}
                       title={blog?.blogs?.title}
+                      imageUrl={blog?.blogs?.imageUrl}
                       content={blog?.blogs?.content}
                       authorName={blog?.users?.name}
                       createdAt={blog.blogs?.createdAt}

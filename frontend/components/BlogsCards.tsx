@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteBlogById } from "@/lib/services";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
@@ -12,6 +13,7 @@ type BlogCardProps = {
   title: string;
   content: string;
   authorName: string;
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
   onEdit: (blogId: string) => void;
@@ -27,6 +29,7 @@ const BlogsCards = ({
   authorName,
   createdAt,
   updatedAt,
+  imageUrl,
   onEdit = (blogId) => {},
   onDelete = (blogId) => {},
 }: Partial<BlogCardProps>) => {
@@ -70,6 +73,17 @@ const BlogsCards = ({
         {updatedAt && (
           <p className="text-gray-400 text-xs">Updated: {formattedUpdatedAt}</p>
         )}
+        {imageUrl && (
+          <div className="w-12 h-10">
+            <Image
+              height={50}
+              width={50}
+              alt={title || "blog image"}
+              src={imageUrl}
+              className="w-10 h-12 object-cover rounded-lg"
+            />
+          </div>
+        )}
 
         {/* Title */}
         <h2 className="text-gray-900 text-lg font-bold leading-snug group-hover:text-cyan-700 transition-colors line-clamp-2">
@@ -79,7 +93,7 @@ const BlogsCards = ({
         {/* Content preview */}
         <div
           dangerouslySetInnerHTML={{ __html: content || "" }}
-          className="text-gray-500 text-sm leading-relaxed line-clamp-6 flex-1 break-words [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4 [&_li]:my-0 [&_li]:pl-0"
+          className="text-gray-500 text-sm leading-relaxed line-clamp-6 flex-1 break-words [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4 [&_li]:my-0 [&_li]:pl-0 [&_img]:max-w-full [&_img]:max-h-32 [&_img]:object-contain [&_img]:rounded"
         />
 
         {/* Read more + actions */}

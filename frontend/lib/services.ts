@@ -88,3 +88,15 @@ export const deleteBlogById = async (id: string) => {
     throw error;
   }
 };
+
+export const uploadImage = async (file: any) => {
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await api.post("/upload", formData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
